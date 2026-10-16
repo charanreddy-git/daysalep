@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DadSale Analytics</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+</head>
+<body>
+    <div class="container">
+        <!-- Upload Section -->
+        <div class="section">
+            <h2 class="section-title">UPLOAD</h2>
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="fileInput" accept=".html,.htm,.pdf" style="display: none;">
+                <div class="upload-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17,8 12,3 7,8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                </div>
+                <div class="upload-text">
+                    <div class="upload-main">upload file</div>
+                    <div class="upload-sub">HTM and PDF files supported</div>
+                </div>
+            </div>
+            <div id="uploadMessage"></div>
+        </div>
+
+        <!-- Mode Toggle: UB / CHEERS -->
+        <div class="section disabled" id="modeSection">
+            <div class="toggle-buttons">
+                <button class="toggle-button active" id="ubBtn">UB</button>
+                <button class="toggle-button" id="cheersBtn">CHEERS</button>
+            </div>
+        </div>
+
+        <!-- Search Section -->
+        <div class="section disabled" id="searchSection">
+            <h2 class="section-title">SEARCH</h2>
+            <div class="search-container">
+                <input type="text" id="searchInput" class="search-input" placeholder="Enter product code" maxlength="50">
+                <button class="search-button">SEARCH</button>
+            </div>
+            <div id="searchMessage"></div>
+        </div>
+
+        <!-- UB Toggle Buttons -->
+        <div class="section disabled" id="ubToggleSection">
+            <div class="toggle-buttons">
+                <button class="toggle-button active" id="todayBtn">TODAY SALE</button>
+                <button class="toggle-button" id="balanceBtn">OPENING BALANCE</button>
+            </div>
+        </div>
+
+        <!-- UB Today Sale Results -->
+        <div class="section disabled" id="todaySection">
+            <div class="results-box">
+                <div class="results-header">
+                    <h3 class="results-title">TODAY SALE</h3>
+                    <button class="copy-button" title="Copy to clipboard">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                        </svg>
+                    </button>
+                    <div class="copy-success" id="todaySuccess">Copied!</div>
+                </div>
+                <div class="results-content" id="todayContent">No data available</div>
+            </div>
+        </div>
+
+        <!-- UB Opening Balance Results -->
+        <div class="section disabled" id="balanceSection" style="display: none;">
+            <div class="results-box">
+                <div class="results-header">
+                    <h3 class="results-title">OPENING BALANCE</h3>
+                    <button class="copy-button" title="Copy to clipboard">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                        </svg>
+                    </button>
+                    <div class="copy-success" id="balanceSuccess">Copied!</div>
+                </div>
+                <div class="results-content" id="balanceContent">No data available</div>
+            </div>
+        </div>
+
+        <!-- CHEERS Toggle Buttons -->
+        <div class="section disabled" id="cheersToggleSection" style="display: none;">
+            <div class="toggle-buttons">
+                <button class="toggle-button active" id="cheersTodayBtn">TODAY SALE</button>
+                <button class="toggle-button" id="cheersBalanceBtn">OPENING BALANCE</button>
+            </div>
+        </div>
+
+        <!-- CHEERS Today Sale Results -->
+        <div class="section disabled" id="cheersTodaySection" style="display: none;">
+            <div class="results-box">
+                <div class="results-header">
+                    <h3 class="results-title">CHEERS - TODAY SALE</h3>
+                    <button class="copy-button" title="Copy to clipboard">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                        </svg>
+                    </button>
+                    <div class="copy-success" id="cheersTodaySuccess">Copied!</div>
+                </div>
+                <div class="results-content" id="cheersTodayContent">No data available</div>
+            </div>
+        </div>
+
+        <!-- CHEERS Opening Balance Results -->
+        <div class="section disabled" id="cheersBalanceSection" style="display: none;">
+            <div class="results-box">
+                <div class="results-header">
+                    <h3 class="results-title">CHEERS - OPENING BALANCE</h3>
+                    <button class="copy-button" title="Copy to clipboard">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                        </svg>
+                    </button>
+                    <div class="copy-success" id="cheersBalanceSuccess">Copied!</div>
+                </div>
+                <div class="results-content" id="cheersBalanceContent">No data available</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <div>Processing...</div>
+    </div>
+
+    <script src="ui.js"></script>
+    <script src="api.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

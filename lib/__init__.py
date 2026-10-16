@@ -1,0 +1,1 @@
+"""DaySale application package."""
