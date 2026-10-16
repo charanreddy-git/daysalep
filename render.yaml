@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: daysale
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn application:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+    healthCheckPath: /healthz
+    envVars:
+      - key: DEPOT_NAME
+        value: MDCL-2
+      - key: DEPOT_PREFIX
+        value: Depot
+      - key: PARSE_TIMEOUT_MS
+        value: 50000

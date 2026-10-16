@@ -1,15 +1,12 @@
 """DaySale web application.
 
-Elastic Beanstalk expects ``application.py`` with an ``application``
-callable at the repository root, so this file stays here.
-
 Run locally:
 
     python application.py
 
-Run in production (Elastic Beanstalk, App Runner, ECS, EC2, ...):
+Run in production (Render or anywhere with gunicorn):
 
-    gunicorn application:application --bind :8000
+    gunicorn application:application --bind 0.0.0.0:$PORT
 """
 
 from __future__ import annotations
@@ -126,7 +123,7 @@ def static_or_index(path):
     return send_from_directory(PUBLIC_DIR, "index.html")
 
 
-application = app  # WSGI entrypoint used by Elastic Beanstalk and gunicorn
+application = app  # WSGI entrypoint used by gunicorn
 
 
 if __name__ == "__main__":

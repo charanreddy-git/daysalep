@@ -8,9 +8,6 @@ __pycache__/
 .env.local
 .env.*.local
 
-# Elastic Beanstalk CLI
-.elasticbeanstalk/
-
 # Logs
 logs
 *.log
