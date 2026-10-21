@@ -17,6 +17,16 @@ python application.py
 
 Open <http://127.0.0.1:2323> and drop in a report file.
 
+## Deploy on Vercel
+
+Vercel detects the Flask app from `wsgi.py` and installs dependencies from
+`requirements.txt`. Import the repo in Vercel and deploy — no build command or
+extra settings are needed.
+
+- Files in `public/` are served from Vercel's CDN; Flask handles `/api/*` and the health check.
+- Vercel rejects request bodies over **4.5 MB** before they reach the app.
+- Set optional environment variables in **Project Settings → Environment Variables**.
+
 ## API
 
 - `POST /api/parse` — send a file as multipart field `file`, get `{ "success": true, "result": { ... } }` back
@@ -39,7 +49,7 @@ All optional — each one falls back to the default shown:
 ```text
 daysale/
 ├── application.py   # Flask routes
-├── wsgi.py          # WSGI entrypoint
+├── wsgi.py          # Vercel entrypoint
 ├── lib/
 │   ├── parse.py     # picks the right parser
 │   ├── html_parser.py
@@ -64,5 +74,5 @@ daysale/
 
 - The UI doesn't care whether the file came in as HTML or PDF — both produce the same result shape.
 - PDFs need selectable text. OCR could be added inside `lib/pdf_parser.py` later without touching the UI.
-- Uploads are capped at 10 MB.
-- The rate limit is counted in memory, so it applies per process.
+- Uploads are capped at 10 MB in the app. On Vercel, request bodies over 4.5 MB are rejected before they reach the app.
+- The rate limit is counted in memory, so it applies per process; on Vercel, each function instance keeps its own counter.

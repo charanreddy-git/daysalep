@@ -1,14 +1,8 @@
-"""WSGI entrypoint for hosts that only look at default module names.
+"""WSGI entrypoint for Vercel.
 
-Vercel's Python runtime searches for `app.py`, `index.py`, `server.py`,
-`main.py`, `wsgi.py`, or `asgi.py` (also inside `src/` or `app/`) and refuses
-anything else — `application.py` gets reported as a *potential* entrypoint and
-the deploy fails with FLASK_ENTRYPOINT_NOT_FOUND. Re-exporting the Flask app
-from here satisfies that detection without moving any code.
-
-Works everywhere else too:
-
-    gunicorn wsgi:app --bind 0.0.0.0:$PORT
+Vercel's Python runtime looks for a Flask `app` in `app.py`, `index.py`,
+`server.py`, `main.py`, `wsgi.py`, or `asgi.py`. This file re-exports the app
+from `application.py` so Vercel can detect it without renaming the main module.
 """
 
 from __future__ import annotations

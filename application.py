@@ -4,9 +4,7 @@ Run locally:
 
     python application.py
 
-Run in production (Render or anywhere with gunicorn):
-
-    gunicorn application:application --bind 0.0.0.0:$PORT
+Vercel deploys the app through wsgi.py.
 """
 
 from __future__ import annotations
@@ -121,9 +119,6 @@ def static_or_index(path):
     if target and os.path.isfile(target):
         return send_from_directory(PUBLIC_DIR, path)
     return send_from_directory(PUBLIC_DIR, "index.html")
-
-
-application = app  # WSGI entrypoint used by gunicorn
 
 
 if __name__ == "__main__":
