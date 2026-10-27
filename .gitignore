@@ -30,3 +30,9 @@ Thumbs.db
 # Temporary files
 tmp/
 temp/
+
+# Node / Playwright
+node_modules/
+test-results/
+playwright-report/
+blob-report/

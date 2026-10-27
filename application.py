@@ -23,7 +23,11 @@ from lib.ratelimit import check_rate_limit
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PUBLIC_DIR = os.path.join(BASE_DIR, "public")
 
-MAX_UPLOAD_BYTES = 10 * 1024 * 1024
+MAX_REQUEST_BYTES = int(4.5 * 1024 * 1024)
+# Leave a little room for multipart headers so the whole request stays under
+# Vercel's 4.5 MB request-body limit.
+MAX_UPLOAD_BYTES = MAX_REQUEST_BYTES - 16 * 1024
+MAX_UPLOAD_LABEL = "4.5 MB"
 
 
 def _int_env(name, default):
@@ -36,7 +40,7 @@ def _int_env(name, default):
 PARSE_TIMEOUT_MS = _int_env("PARSE_TIMEOUT_MS", 50_000)
 
 app = Flask(__name__)
-app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_BYTES + 2 * 1024 * 1024
+app.config["MAX_CONTENT_LENGTH"] = MAX_REQUEST_BYTES
 init_request_logging(app)
 
 
@@ -88,6 +92,9 @@ def parse_route():
     if upload is None or not upload.filename:
         return jsonify(success=False, error="No file uploaded."), 400
 
+    if _stream_size(upload) > MAX_UPLOAD_BYTES:
+        return jsonify(success=False, error=f"File is too large. The maximum upload size is {MAX_UPLOAD_LABEL}."), 413
+
     try:
         log.info("Parsing upload", filename=upload.filename, size=_stream_size(upload))
         result = _with_timeout(lambda: parse_upload(upload), PARSE_TIMEOUT_MS)
@@ -105,7 +112,7 @@ def parse_route():
 
 @app.errorhandler(413)
 def upload_too_large(_error):
-    return jsonify(success=False, error="File is too large. The maximum upload size is 10 MB."), 413
+    return jsonify(success=False, error=f"File is too large. The maximum upload size is {MAX_UPLOAD_LABEL}."), 413
 
 
 @app.get("/")

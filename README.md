@@ -24,7 +24,7 @@ Vercel detects the Flask app from `wsgi.py` and installs dependencies from
 extra settings are needed.
 
 - Files in `public/` are served from Vercel's CDN; Flask handles `/api/*` and the health check.
-- Vercel rejects request bodies over **4.5 MB** before they reach the app.
+- Vercel rejects request bodies over **4.5 MB** before they reach the app, so the UI and Flask both cap uploads at 4.5 MB.
 - Set optional environment variables in **Project Settings → Environment Variables**.
 
 ## API
@@ -58,8 +58,24 @@ daysale/
 │   ├── stock.py     # Opening Balance numbers
 │   ├── cheers.py    # CHEERS numbers
 │   └── config.py    # product codes and depot info
-└── public/          # index.html, styles.css, ui.js, api.js, script.js
+├── public/          # index.html, styles.css, ui.js, api.js, script.js, favicon.svg
+└── tests/           # Playwright regression tests and fixtures
 ```
+
+## Tests
+
+The browser regression suite covers upload, report tabs, copy, product search,
+the product table, errors, and mobile layout.
+
+```bash
+npm install
+npx playwright install chromium
+npm test
+```
+
+The tests start the Flask app on port `4323` with a higher rate limit and use
+the fixtures in `tests/fixtures/`. To watch the tests run, use
+`npm run test:headed`.
 
 ## Making changes
 
@@ -74,5 +90,6 @@ daysale/
 
 - The UI doesn't care whether the file came in as HTML or PDF — both produce the same result shape.
 - PDFs need selectable text. OCR could be added inside `lib/pdf_parser.py` later without touching the UI.
-- Uploads are capped at 10 MB in the app. On Vercel, request bodies over 4.5 MB are rejected before they reach the app.
+- Uploads are capped at 4.5 MB in both the UI and Flask to match Vercel's request-body limit.
+- Static asset links in `public/index.html` carry a `?v=` query. Bump it after changing any file in `public/` so browsers and the CDN pick up the new version.
 - The rate limit is counted in memory, so it applies per process; on Vercel, each function instance keeps its own counter.

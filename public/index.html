@@ -3,19 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DadSale Analytics</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>DaySale</title>
+    <meta name="description" content="Upload a daily sales report and get clean, ready-to-copy sale and opening balance numbers.">
+    <meta name="theme-color" content="#2563eb">
+    <!-- Bump ?v= on these links whenever a file in public/ changes. -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg?v=4">
+    <link rel="stylesheet" href="styles.css?v=4">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
 </head>
 <body>
     <div class="container">
-        <!-- Upload Section -->
-        <div class="section">
-            <h2 class="section-title">UPLOAD</h2>
-            <div class="upload-area" id="uploadArea">
-                <input type="file" id="fileInput" accept=".html,.htm,.pdf" style="display: none;">
-                <div class="upload-icon">
+        <header class="app-header">
+            <h1 class="app-title">DaySale</h1>
+            <p class="app-tagline">Upload a daily sales report and get clean, ready-to-copy numbers.</p>
+        </header>
+
+        <!-- Upload -->
+        <section class="section upload-section" id="uploadSection">
+            <div class="upload-area" id="uploadArea" role="button" tabindex="0" aria-label="Upload a sales report" aria-describedby="uploadHint">
+                <input type="file" id="fileInput" accept=".html,.htm,.pdf" hidden>
+                <div class="upload-icon" aria-hidden="true">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                         <polyline points="17,8 12,3 7,8"/>
@@ -23,124 +30,188 @@
                     </svg>
                 </div>
                 <div class="upload-text">
-                    <div class="upload-main">upload file</div>
-                    <div class="upload-sub">HTM and PDF files supported</div>
+                    <div class="upload-main">Drop your report here</div>
+                    <div class="upload-sub">or click to choose a file</div>
+                </div>
+                <div class="upload-hint" id="uploadHint">HTML, HTM, or PDF &middot; up to 4.5 MB</div>
+            </div>
+
+            <div class="upload-progress" id="uploadProgress" hidden role="status" aria-live="polite">
+                <div class="spinner" aria-hidden="true"></div>
+                <div class="progress-text" id="uploadProgressText">Reading your report&hellip;</div>
+            </div>
+        </section>
+
+        <!-- Persistent report context -->
+        <div class="report-bar" id="reportBar" hidden>
+            <div class="report-info">
+                <div class="report-file" id="reportFile"></div>
+                <div class="report-meta" id="reportMeta"></div>
+            </div>
+            <button type="button" class="secondary-button" id="uploadAnotherBtn">Upload another</button>
+        </div>
+
+        <div id="uploadMessage" class="messages" role="status" aria-live="polite"></div>
+
+        <!-- Report workspace -->
+        <main id="workspace" hidden>
+            <!-- Persistent product lookup -->
+            <section class="section search-section" id="searchSection" aria-labelledby="searchTitle">
+                <div class="search-header">
+                    <h2 class="section-title" id="searchTitle">Product lookup</h2>
+                    <span class="search-hint">Available on every report &middot; <kbd>/</kbd> to search</span>
+                </div>
+                <div class="search-container">
+                    <div class="search-input-wrap">
+                        <input type="text" id="searchInput" class="search-input" placeholder="Code or description" maxlength="50" aria-label="Product code or description" autocomplete="off" spellcheck="false">
+                        <button type="button" class="search-clear" id="clearSearchBtn" aria-label="Clear search" hidden>&times;</button>
+                    </div>
+                    <button type="button" class="search-button">Search</button>
+                </div>
+                <div id="recentSearches" class="recent-searches" aria-label="Recent searches" hidden></div>
+                <div id="searchMessage" class="messages" role="status" aria-live="polite"></div>
+                <div id="searchResults" class="search-results-wrap" aria-label="Search results" hidden></div>
+            </section>
+
+            <!-- Summary cards double as report tabs -->
+            <div class="summary-tabs" role="tablist" aria-label="Report views">
+                <button type="button" class="summary-tab" id="tabUbToday" role="tab" aria-selected="true" aria-controls="todaySection" data-view="ub-today" tabindex="0">
+                    <span class="summary-tab-label">UB today</span>
+                    <span class="summary-tab-value" data-summary-value="ub-today">&mdash;</span>
+                    <span class="summary-tab-sub" data-summary-sub="ub-today">Awaiting report</span>
+                </button>
+                <button type="button" class="summary-tab" id="tabUbBalance" role="tab" aria-selected="false" aria-controls="balanceSection" data-view="ub-balance" tabindex="-1">
+                    <span class="summary-tab-label">UB opening</span>
+                    <span class="summary-tab-value" data-summary-value="ub-balance">&mdash;</span>
+                    <span class="summary-tab-sub" data-summary-sub="ub-balance">Awaiting report</span>
+                </button>
+                <button type="button" class="summary-tab" id="tabCheersToday" role="tab" aria-selected="false" aria-controls="cheersTodaySection" data-view="cheers-today" tabindex="-1">
+                    <span class="summary-tab-label">CHEERS today</span>
+                    <span class="summary-tab-value" data-summary-value="cheers-today">&mdash;</span>
+                    <span class="summary-tab-sub" data-summary-sub="cheers-today">Awaiting report</span>
+                </button>
+                <button type="button" class="summary-tab" id="tabCheersBalance" role="tab" aria-selected="false" aria-controls="cheersBalanceSection" data-view="cheers-balance" tabindex="-1">
+                    <span class="summary-tab-label">CHEERS opening</span>
+                    <span class="summary-tab-value" data-summary-value="cheers-balance">&mdash;</span>
+                    <span class="summary-tab-sub" data-summary-sub="cheers-balance">Awaiting report</span>
+                </button>
+            </div>
+
+            <!-- UB Today Sale -->
+            <div class="section" id="todaySection" role="tabpanel" aria-labelledby="tabUbToday">
+                <div class="results-box">
+                    <div class="results-header">
+                        <h2 class="results-title" id="todayTitle" tabindex="-1">TODAY SALE</h2>
+                        <button type="button" class="copy-button" data-copy-target="todayContent" aria-label="Copy Today Sale report">
+                            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                            </svg>
+                            <span class="copy-label">Copy</span>
+                        </button>
+                    </div>
+                    <div class="results-content" id="todayContent" data-empty="true">No data available</div>
                 </div>
             </div>
-            <div id="uploadMessage"></div>
-        </div>
 
-        <!-- Mode Toggle: UB / CHEERS -->
-        <div class="section disabled" id="modeSection">
-            <div class="toggle-buttons">
-                <button class="toggle-button active" id="ubBtn">UB</button>
-                <button class="toggle-button" id="cheersBtn">CHEERS</button>
-            </div>
-        </div>
-
-        <!-- Search Section -->
-        <div class="section disabled" id="searchSection">
-            <h2 class="section-title">SEARCH</h2>
-            <div class="search-container">
-                <input type="text" id="searchInput" class="search-input" placeholder="Enter product code" maxlength="50">
-                <button class="search-button">SEARCH</button>
-            </div>
-            <div id="searchMessage"></div>
-        </div>
-
-        <!-- UB Toggle Buttons -->
-        <div class="section disabled" id="ubToggleSection">
-            <div class="toggle-buttons">
-                <button class="toggle-button active" id="todayBtn">TODAY SALE</button>
-                <button class="toggle-button" id="balanceBtn">OPENING BALANCE</button>
-            </div>
-        </div>
-
-        <!-- UB Today Sale Results -->
-        <div class="section disabled" id="todaySection">
-            <div class="results-box">
-                <div class="results-header">
-                    <h3 class="results-title">TODAY SALE</h3>
-                    <button class="copy-button" title="Copy to clipboard">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
-                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-                        </svg>
-                    </button>
-                    <div class="copy-success" id="todaySuccess">Copied!</div>
+            <!-- UB Opening Balance -->
+            <div class="section" id="balanceSection" role="tabpanel" aria-labelledby="tabUbBalance" hidden>
+                <div class="results-box">
+                    <div class="results-header">
+                        <h2 class="results-title" id="balanceTitle" tabindex="-1">OPENING BALANCE</h2>
+                        <button type="button" class="copy-button" data-copy-target="balanceContent" aria-label="Copy Opening Balance report">
+                            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                            </svg>
+                            <span class="copy-label">Copy</span>
+                        </button>
+                    </div>
+                    <div class="results-content" id="balanceContent" data-empty="true">No data available</div>
                 </div>
-                <div class="results-content" id="todayContent">No data available</div>
             </div>
-        </div>
 
-        <!-- UB Opening Balance Results -->
-        <div class="section disabled" id="balanceSection" style="display: none;">
-            <div class="results-box">
-                <div class="results-header">
-                    <h3 class="results-title">OPENING BALANCE</h3>
-                    <button class="copy-button" title="Copy to clipboard">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
-                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-                        </svg>
-                    </button>
-                    <div class="copy-success" id="balanceSuccess">Copied!</div>
+            <!-- CHEERS Today Sale -->
+            <div class="section" id="cheersTodaySection" role="tabpanel" aria-labelledby="tabCheersToday" hidden>
+                <div class="results-box">
+                    <div class="results-header">
+                        <h2 class="results-title" id="cheersTodayTitle" tabindex="-1">CHEERS &mdash; TODAY SALE</h2>
+                        <button type="button" class="copy-button" data-copy-target="cheersTodayContent" aria-label="Copy CHEERS Today Sale report">
+                            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                            </svg>
+                            <span class="copy-label">Copy</span>
+                        </button>
+                    </div>
+                    <div class="results-content" id="cheersTodayContent" data-empty="true">No data available</div>
                 </div>
-                <div class="results-content" id="balanceContent">No data available</div>
             </div>
-        </div>
 
-        <!-- CHEERS Toggle Buttons -->
-        <div class="section disabled" id="cheersToggleSection" style="display: none;">
-            <div class="toggle-buttons">
-                <button class="toggle-button active" id="cheersTodayBtn">TODAY SALE</button>
-                <button class="toggle-button" id="cheersBalanceBtn">OPENING BALANCE</button>
-            </div>
-        </div>
-
-        <!-- CHEERS Today Sale Results -->
-        <div class="section disabled" id="cheersTodaySection" style="display: none;">
-            <div class="results-box">
-                <div class="results-header">
-                    <h3 class="results-title">CHEERS - TODAY SALE</h3>
-                    <button class="copy-button" title="Copy to clipboard">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
-                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-                        </svg>
-                    </button>
-                    <div class="copy-success" id="cheersTodaySuccess">Copied!</div>
+            <!-- CHEERS Opening Balance -->
+            <div class="section" id="cheersBalanceSection" role="tabpanel" aria-labelledby="tabCheersBalance" hidden>
+                <div class="results-box">
+                    <div class="results-header">
+                        <h2 class="results-title" id="cheersBalanceTitle" tabindex="-1">CHEERS &mdash; OPENING BALANCE</h2>
+                        <button type="button" class="copy-button" data-copy-target="cheersBalanceContent" aria-label="Copy CHEERS Opening Balance report">
+                            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                            </svg>
+                            <span class="copy-label">Copy</span>
+                        </button>
+                    </div>
+                    <div class="results-content" id="cheersBalanceContent" data-empty="true">No data available</div>
                 </div>
-                <div class="results-content" id="cheersTodayContent">No data available</div>
             </div>
-        </div>
 
-        <!-- CHEERS Opening Balance Results -->
-        <div class="section disabled" id="cheersBalanceSection" style="display: none;">
-            <div class="results-box">
-                <div class="results-header">
-                    <h3 class="results-title">CHEERS - OPENING BALANCE</h3>
-                    <button class="copy-button" title="Copy to clipboard">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
-                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-                        </svg>
-                    </button>
-                    <div class="copy-success" id="cheersBalanceSuccess">Copied!</div>
+            <!-- Product table -->
+            <section class="section products-section" id="productsSection" aria-labelledby="productsTitle">
+                <div class="products-header">
+                    <div class="products-heading">
+                        <h2 class="section-title" id="productsTitle">Products</h2>
+                        <p class="products-summary" id="productsSummary">No products loaded</p>
+                    </div>
+                    <div class="product-filter-wrap">
+                        <label class="sr-only" for="productFilter">Filter products</label>
+                        <input type="text" id="productFilter" class="product-filter" placeholder="Filter products" autocomplete="off" spellcheck="false">
+                        <button type="button" class="search-clear product-filter-clear" id="clearProductFilter" aria-label="Clear product filter" hidden>&times;</button>
+                    </div>
                 </div>
-                <div class="results-content" id="cheersBalanceContent">No data available</div>
-            </div>
-        </div>
+                <p class="table-scroll-hint">Swipe the table to see all columns.</p>
+                <div class="table-wrap" id="productTableWrap">
+                    <table class="product-table" id="productTable">
+                        <thead>
+                            <tr>
+                                <th scope="col" aria-sort="ascending">
+                                    <button type="button" class="sort-button" data-sort="code">Code <span class="sort-indicator" aria-hidden="true">&uarr;</span></button>
+                                </th>
+                                <th scope="col" aria-sort="none">
+                                    <button type="button" class="sort-button" data-sort="description">Description <span class="sort-indicator" aria-hidden="true"></span></button>
+                                </th>
+                                <th scope="col" class="num" aria-sort="none">
+                                    <button type="button" class="sort-button" data-sort="saleCase">Sale cases <span class="sort-indicator" aria-hidden="true"></span></button>
+                                </th>
+                                <th scope="col" class="num" aria-sort="none">
+                                    <button type="button" class="sort-button" data-sort="saleBottles">Bottles <span class="sort-indicator" aria-hidden="true"></span></button>
+                                </th>
+                                <th scope="col" class="num" aria-sort="none">
+                                    <button type="button" class="sort-button" data-sort="closingStock">Closing <span class="sort-indicator" aria-hidden="true"></span></button>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="productTableBody"></tbody>
+                    </table>
+                </div>
+                <p class="table-empty" id="productTableEmpty" hidden>No products match this filter.</p>
+            </section>
+        </main>
     </div>
 
-    <!-- Loading Overlay -->
-    <div class="loading" id="loading">
-        <div class="spinner"></div>
-        <div>Processing...</div>
-    </div>
+    <div id="liveStatus" class="sr-only" role="status" aria-live="polite"></div>
 
-    <script src="ui.js"></script>
-    <script src="api.js"></script>
-    <script src="script.js"></script>
+    <script src="ui.js?v=4"></script>
+    <script src="api.js?v=4"></script>
+    <script src="script.js?v=4"></script>
 </body>
 </html>
