@@ -29,7 +29,7 @@ PRODUCTS = {
 CHEERS_PRODUCTS = {
     "KDM": {"codes": ["2880W1654GQQ"]},
     "3MNKY": {"codes": ["2880W1072GQQ"]},
-    "FWW": {"codes": ["2880W1062QM"]},
+    "FWW": {"codes": ["2880W1462GQM"]},
     "GGINS": {"codes": ["1921G1070GQQ", "1921G1070GPP", "1921G1070PNN"]},
     "MALT": {"codes": ["1921W1071GQQ", "1921W1071GPP", "1921W1071GNN"]},
     "SVAT": {"codes": ["1921W2094GQQ", "1921W2094GPP", "1921W2094GNN"]},
